@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Student Productivity Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:#f5f5f3;min-height:100vh;padding:2rem 1rem}
+  .app{max-width:720px;margin:0 auto}
+  .hero{text-align:center;padding:2rem 0 1.5rem}
+  .hero h1{font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px}
+  .hero p{font-size:15px;color:#666;margin-top:8px}
+  .header-chip{display:inline-block;font-size:11px;font-weight:500;padding:4px 14px;border-radius:20px;background:#EEF4FF;color:#3366CC;margin-bottom:10px;letter-spacing:0.5px;border:1px solid #C7D9FF}
+  .card{background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:1.4rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+  .section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:12px}
+  .col-labels{display:grid;grid-template-columns:1fr 100px 110px 36px;gap:8px;margin-bottom:6px}
+  .col-label{font-size:11px;color:#aaa;font-weight:500}
+  .col-label:nth-child(2),.col-label:nth-child(3){text-align:center}
+  .subject-row{display:grid;grid-template-columns:1fr 100px 110px 36px;gap:8px;align-items:center;margin-bottom:8px}
+  input[type=text],input[type=number],select{
+    height:38px;border-radius:8px;border:1px solid #e0e0e0;
+    padding:0 10px;font-family:'DM Sans',sans-serif;font-size:14px;
+    color:#1a1a1a;background:#fff;outline:none;width:100%;
+    transition:border-color 0.2s
+  }
+  input[type=text]:focus,input[type=number]:focus,select:focus{border-color:#3366CC}
+  input[type=number]{text-align:center}
+  .del-btn{background:none;border:1px solid #e0e0e0;border-radius:8px;color:#aaa;cursor:pointer;font-size:18px;height:38px;width:38px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+  .del-btn:hover{background:#FEF2F2;color:#DC2626;border-color:#FCA5A5}
+  .add-btn{background:none;border:1px dashed #ccc;border-radius:8px;color:#888;cursor:pointer;font-size:13px;padding:9px;width:100%;margin-top:4px;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+  .add-btn:hover{background:#f9f9f9;border-color:#aaa}
+  .study-hrs{display:flex;align-items:center;gap:12px}
+  .study-hrs label{font-size:14px;color:#555;white-space:nowrap}
+  input[type=range]{flex:1;height:4px;accent-color:#1a1a1a;cursor:pointer}
+  .hrs-val{font-size:14px;font-weight:500;min-width:52px;color:#1a1a1a}
+  .analyze-btn{width:100%;padding:15px;background:#1a1a1a;color:#fff;border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.2s;margin-bottom:1.5rem}
+  .analyze-btn:hover{opacity:0.85}
+  .overall-card{background:#fff;border-radius:14px;padding:1.4rem;margin-bottom:10px;border:1px solid #e5e5e5;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+  .overall-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .stat{text-align:center;padding:12px;background:#f8f8f6;border-radius:10px;border:1px solid #ebebeb}
+  .stat-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#1a1a1a}
+  .stat-label{font-size:11px;color:#888;margin-top:3px}
+  .result-card{border-radius:14px;padding:1.25rem;margin-bottom:10px;border:1px solid}
+  .result-card.critical{background:#FEF2F2;border-color:#FECACA}
+  .result-card.warning{background:#FFFBEB;border-color:#FDE68A}
+  .result-card.good{background:#F0FDF4;border-color:#BBF7D0}
+  .rc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+  .rc-subject{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#1a1a1a}
+  .rc-badge{font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px}
+  .badge-critical{background:#FEE2E2;color:#991B1B}
+  .badge-warning{background:#FEF3C7;color:#92400E}
+  .badge-good{background:#DCFCE7;color:#166534}
+  .rc-marks{font-size:13px;color:#777;margin-bottom:10px}
+  .rc-reco{font-size:13px;color:#333;line-height:1.7;list-style:none;padding:0}
+  .rc-reco li{padding:1px 0 1px 8px}
+  .rc-reco li::before{content:"→ ";color:#aaa}
+  .plan-card{background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:1.4rem;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+  .plan-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px}
+  .plan-item{display:flex;gap:14px;padding:10px 12px;border-radius:10px;background:#f8f8f6;border:1px solid #ebebeb;margin-bottom:7px;align-items:flex-start}
+  .plan-num{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#ccc;min-width:24px}
+  .plan-text{font-size:13px;color:#333;line-height:1.6}
+  .plan-text strong{font-weight:500;color:#1a1a1a}
+  .footer{text-align:center;padding:2rem 0 1rem;font-size:12px;color:#bbb}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <div class="header-chip">AI-ML Hackathon — Nerdfest 6.0</div>
+    <h1>Student Productivity Assistant</h1>
+    <p>Enter your subjects, marks & study hours to get personalized recommendations</p>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Daily study hours available</div>
+    <div class="study-hrs">
+      <label>Hours per day</label>
+      <input type="range" min="1" max="12" value="4" id="totalHrs" step="1" oninput="document.getElementById('hrsVal').textContent=this.value+' hrs'">
+      <span class="hrs-val" id="hrsVal">4 hrs</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Your subjects</div>
+    <div class="col-labels">
+      <span class="col-label">Subject name</span>
+      <span class="col-label">Marks (%)</span>
+      <span class="col-label">Difficulty</span>
+      <span class="col-label"></span>
+    </div>
+    <div id="subjectList"></div>
+    <button class="add-btn" onclick="addSubject()">+ Add subject</button>
+  </div>
+
+  <button class="analyze-btn" onclick="analyze()">Analyze & Get Recommendations</button>
+
+  <div id="results"></div>
+
+  <div class="footer">Built with Python logic · Nerdfest 6.0 · Saranathan College of Engineering</div>
+</div>
+
+<script>
+let subjects = [
+  {name:'Mathematics',marks:45,difficulty:'Hard'},
+  {name:'Data Structures',marks:62,difficulty:'Hard'},
+  {name:'Python Programming',marks:78,difficulty:'Medium'},
+  {name:'AI & Machine Learning',marks:55,difficulty:'Hard'},
+  {name:'Operating Systems',marks:70,difficulty:'Medium'},
+];
+
+const diffOptions = ['Easy','Medium','Hard'];
+
+function render(){
+  const list = document.getElementById('subjectList');
+  list.innerHTML = subjects.map((s,i)=>`
+    <div class="subject-row">
+      <input type="text" value="${s.name}" placeholder="Subject name" oninput="subjects[${i}].name=this.value">
+      <input type="number" min="0" max="100" value="${s.marks}" placeholder="Marks" oninput="subjects[${i}].marks=Math.min(100,Math.max(0,+this.value))">
+      <select onchange="subjects[${i}].difficulty=this.value">
+        ${diffOptions.map(d=>`<option ${d===s.difficulty?'selected':''}>${d}</option>`).join('')}
+      </select>
+      <button class="del-btn" onclick="removeSubject(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function addSubject(){
+  subjects.push({name:'',marks:60,difficulty:'Medium'});
+  render();
+}
+
+function removeSubject(i){
+  if(subjects.length>1){ subjects.splice(i,1); render(); }
+}
+
+function getStatus(marks){
+  if(marks<50) return {label:'Critical',cls:'critical',badge:'badge-critical'};
+  if(marks<70) return {label:'Needs Work',cls:'warning',badge:'badge-warning'};
+  return {label:'On Track',cls:'good',badge:'badge-good'};
+}
+
+function getRecommendations(s){
+  const recos=[];
+  const diffMult=s.difficulty==='Hard'?1.5:s.difficulty==='Medium'?1.0:0.7;
+  const hrs=+document.getElementById('totalHrs').value;
+  if(s.marks<50){
+    recos.push('Revise fundamentals from scratch — start with basics');
+    recos.push('Dedicate at least '+Math.ceil(hrs*0.35*diffMult)+' hrs/day to this subject');
+    recos.push('Solve past exam papers and identify weak chapters');
+    if(s.difficulty==='Hard') recos.push('Form a study group or get peer help for tough concepts');
+  } else if(s.marks<70){
+    recos.push('Focus on chapters where marks are being lost');
+    recos.push('Spend '+Math.ceil(hrs*0.2*diffMult)+' hrs/day practicing problems');
+    recos.push('Take mock tests every 2 days to track improvement');
+  } else {
+    recos.push('Maintain current pace — do weekly revisions');
+    recos.push('Help peers to reinforce your own understanding');
+    recos.push('Focus on scoring full marks in this subject');
+  }
+  return recos;
+}
+
+function analyze(){
+  const filled=subjects.filter(s=>s.name.trim());
+  if(!filled.length){
+    document.getElementById('results').innerHTML='<p style="text-align:center;color:#aaa;padding:2rem">Please add at least one subject.</p>';
+    return;
+  }
+  const avg=Math.round(filled.reduce((a,s)=>a+s.marks,0)/filled.length);
+  const critical=filled.filter(s=>s.marks<50).length;
+  const strong=filled.filter(s=>s.marks>=70).length;
+  const hrs=+document.getElementById('totalHrs').value;
+  const totalWeight=filled.reduce((a,s)=>{
+    const w=s.difficulty==='Hard'?3:s.difficulty==='Medium'?2:1;
+    return a+(100-s.marks)*w;
+  },0);
+  const studyPlan=filled
+    .filter(s=>s.marks<70)
+    .sort((a,b)=>{
+      const wa=(100-a.marks)*(a.difficulty==='Hard'?3:a.difficulty==='Medium'?2:1);
+      const wb=(100-b.marks)*(b.difficulty==='Hard'?3:b.difficulty==='Medium'?2:1);
+      return wb-wa;
+    })
+    .map(s=>{
+      const w=(100-s.marks)*(s.difficulty==='Hard'?3:s.difficulty==='Medium'?2:1);
+      const h=Math.max(0.5,parseFloat((hrs*w/totalWeight).toFixed(1)));
+      return {name:s.name,hrs:h};
+    });
+
+  let html=`
+    <div class="overall-card">
+      <div class="overall-title">Your overview</div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-num">${avg}%</div><div class="stat-label">Average marks</div></div>
+        <div class="stat"><div class="stat-num">${critical}</div><div class="stat-label">Critical subjects</div></div>
+        <div class="stat"><div class="stat-num">${strong}</div><div class="stat-label">Strong subjects</div></div>
+      </div>
+    </div>
+  `;
+  html+=filled.map(s=>{
+    const st=getStatus(s.marks);
+    const recos=getRecommendations(s);
+    return `
+      <div class="result-card ${st.cls}">
+        <div class="rc-top">
+          <div class="rc-subject">${s.name}</div>
+          <span class="rc-badge ${st.badge}">${st.label}</span>
+        </div>
+        <div class="rc-marks">Marks: ${s.marks}% &nbsp;·&nbsp; Difficulty: ${s.difficulty}</div>
+        <ul class="rc-reco">${recos.map(r=>`<li>${r}</li>`).join('')}</ul>
+      </div>
+    `;
+  }).join('');
+
+  if(studyPlan.length){
+    html+=`<div class="plan-card">
+      <div class="plan-title">Suggested daily time split</div>
+      ${studyPlan.map((p,i)=>`
+        <div class="plan-item">
+          <div class="plan-num">${i+1}</div>
+          <div class="plan-text"><strong>${p.name}</strong> — ${p.hrs} hrs/day</div>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+  document.getElementById('results').innerHTML=html;
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+render();
+</script>
+</body>
+</html>
